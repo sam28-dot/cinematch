@@ -205,3 +205,17 @@ def catalog_status():
     return {"tmdb_configured": bool(os.environ.get("TMDB_READ_ACCESS_TOKEN", "").strip()),
             "message": "Indian movie catalogue is ready." if os.environ.get("TMDB_READ_ACCESS_TOKEN", "").strip()
                        else "Add TMDB_READ_ACCESS_TOKEN to your hosting environment to enable the full Indian movie catalogue."}
+
+
+@app.get("/api/catalog/hollywood")
+def hollywood_catalog(page: int = Query(1, ge=1, le=500), sort: str = "popularity.desc"):
+    """Paginated US-origin movie catalogue using the same TMDB credentials as Indian cinema."""
+    allowed_sorts = {"popularity.desc", "vote_average.desc", "primary_release_date.desc", "primary_release_date.asc"}
+    if sort not in allowed_sorts:
+        sort = "popularity.desc"
+    params = {"include_adult": "false", "include_video": "false", "language": "en-US",
+              "page": page, "sort_by": sort, "with_origin_country": "US"}
+    data = tmdb_get("/discover/movie", params)
+    return {"page": data.get("page", page), "total_pages": data.get("total_pages", 0),
+            "total_results": data.get("total_results", 0),
+            "results": [normalize_tmdb_movie(m) for m in data.get("results", [])]}
