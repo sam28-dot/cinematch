@@ -183,8 +183,22 @@ def indian_catalog(page: int = Query(1, ge=1, le=500), language: str | None = No
             "total_results": data.get("total_results", 0),
             "results": [normalize_tmdb_movie(m) for m in data.get("results", [])]}
 
+@app.get("/api/catalog/hollywood")
+def hollywood_catalog(page: int = Query(1, ge=1, le=500), sort: str = "popularity.desc"):
+    """Browse English-language US films (Hollywood and other US cinema)."""
+    allowed_sorts = {"popularity.desc", "vote_average.desc", "primary_release_date.desc", "primary_release_date.asc"}
+    if sort not in allowed_sorts:
+        sort = "popularity.desc"
+    params = {"include_adult": "false", "include_video": "false", "language": "en-US",
+              "page": page, "sort_by": sort, "with_origin_country": "US",
+              "with_original_language": "en"}
+    data = tmdb_get("/discover/movie", params)
+    return {"page": data.get("page", page), "total_pages": data.get("total_pages", 0),
+            "total_results": data.get("total_results", 0),
+            "results": [normalize_tmdb_movie(m) for m in data.get("results", [])]}
+
 @app.get("/api/catalog/search")
-def catalog_search(q: str = Query(..., min_length=1, max_length=100), page: int = Query(1, ge=1, le=500), indian_only: bool = True):
+def catalog_search(q: str = Query(..., min_length=1, max_length=100), page: int = Query(1, ge=1, le=500), indian_only: bool = False):
     """Search movie titles through TMDB; restrict to Indian-origin movies by default."""
     params = {"query": q.strip(), "include_adult": "false", "language": "en-US", "page": page}
     if indian_only:
