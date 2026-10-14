@@ -1,6 +1,6 @@
 # CineMatch (backend + ML core)
 
-**Status:** backend API, ETL, recommenders, evaluation and tests are implemented. **Not yet built:** React frontend, onboarding UI, About page, Spark ALS, natural-language search, TMDB/provider integration.
+**Status:** backend API, ML recommenders, premium responsive web UI, About section, and TMDB-backed Indian cinema catalogue integration are implemented. The catalogue requires a free TMDB Read Access Token configured as `TMDB_READ_ACCESS_TOKEN` in the deployment environment.
 
 ## Run
     pip install -r requirements.txt
@@ -16,9 +16,15 @@
 - **Collaborative:** item-item cosine kNN on the rating matrix (dense; fine for 100K, not for 1M+). A stand-in for Spark ALS, which is not implemented.
 - **Hybrid:** min-max normalised weighted sum (content .4, CF .4, popularity .2; untuned), per-genre cap for diversity, watched/disliked removed, explanation = strongest contributing component.
 
+## Indian cinema catalogue and UI
+- The premium responsive UI lives in `frontend/index.html` and includes Discover, language filters, Indian cinema, a browser-based watchlist, and an About CineMatch section.
+- `/api/catalog/indian` uses TMDB Discover with `with_origin_country=IN`; language filters include Hindi, Tamil, Telugu, Malayalam, Kannada, Bengali, Marathi, Punjabi, Gujarati, Urdu, Assamese, Odia and English-language Indian films.
+- `/api/catalog/search` searches Indian-origin films. Both endpoints use `TMDB_READ_ACCESS_TOKEN` server-side, never in browser code.
+- To enable it, create a TMDB account, request a free API Read Access Token, then add `TMDB_READ_ACCESS_TOKEN` in your Render (or other host) environment variables and redeploy. Without this variable, the local recommendation engine still works but the full live catalogue is disabled.
+- TMDB data and poster images are subject to TMDB's terms and attribution requirements. This is a searchable, paginated catalogue, not a downloaded static copy of every Indian film.
+
 ## Limits
-MovieLens 100K has no language, runtime, cast or tags, so those filters are not available. `/api/providers` returns no providers and labels nothing free until a verified source is wired in.
-Data: MovieLens (GroupLens Research). TMDB attribution will be required if TMDB is added.
+MovieLens 100K has no language, runtime, cast or tags. `/api/providers` does not claim a film is free to watch unless verified provider data is configured. Data: MovieLens (GroupLens Research). TMDB attribution is required for TMDB data/images.
 
 ## Deploy
 Single service: the API also serves a minimal UI at `/` (`frontend/index.html`, plain HTML/JS; the planned React app is not built).
