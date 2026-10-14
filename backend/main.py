@@ -41,7 +41,9 @@ def one(mid):
 def enrich(recs): return [{**one(r["movie_id"]), "score": r["score"], "reason": r["reason"]} for r in recs]
 
 @app.get("/api/health")
-def health(): return {"status": "ok", "data_source": S["quality"]["source"], "is_sample": S["quality"]["is_sample"]}
+def health():
+    return {"status": "ok", "data_source": S["quality"]["source"], "is_sample": S["quality"]["is_sample"],
+            "tmdb_configured": bool(os.environ.get("TMDB_READ_ACCESS_TOKEN", "").strip())}
 
 @app.get("/api/genres")
 def genres(): return sorted({g for x in S["rec"].movies.genres.dropna() for g in x.split("|") if g})
