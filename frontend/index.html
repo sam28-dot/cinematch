@@ -210,7 +210,7 @@ nav{height:78px;display:flex;align-items:center;justify-content:space-between;ga
     }catch(e){retryView(body,e.message,()=>showDetails(movie));}
   }
   $("#search-form").addEventListener("submit",e=>{e.preventDefault();searchMovies();});
-  $("#language").addEventListener("change",()=>{ $$("#language option").forEach(()=>{});$$("[data-lang]").forEach(b=>b.classList.toggle("active",b.dataset.lang===$("#language").value));$("#query").value="";loadIndian();});
+  $("#language").addEventListener("change",()=>{ $$("[data-lang]").forEach(b=>b.classList.toggle("active",b.dataset.lang===$("#language").value));$("#query").value="";loadIndian();});
   $("#sort").addEventListener("change",()=>{loadIndian();loadHollywood();});
   $$("[data-lang]").forEach(b=>b.addEventListener("click",()=>{$("#language").value=b.dataset.lang;$("#query").value="";$$("[data-lang]").forEach(x=>x.classList.toggle("active",x===b));loadIndian();}));
   $("#load-more").addEventListener("click",async()=>{
