@@ -123,3 +123,79 @@ def model_eval():
 
 @app.get("/", include_in_schema=False)
 def index(): return FileResponse(ROOT / "frontend/index.html")
+
+
+# TMDB-backed catalogue: configure TMDB_READ_ACCESS_TOKEN in the deployment environment.
+# The token stays server-side and is never shipped to the browser.
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
+
+TMDB_BASE = "https://api.themoviedb.org/3"
+
+def tmdb_get(path: str, params: dict):
+    token = os.environ.get("TMDB_READ_ACCESS_TOKEN", "").strip()
+    if not token:
+        raise HTTPException(status_code=503, detail="Indian movie catalogue needs TMDB_READ_ACCESS_TOKEN. Add a free TMDB read access token to your deployment environment.")
+    url = f"{TMDB_BASE}{path}?{urlencode(params)}"
+    req = Request(url, headers={"Authorization": f"Bearer {token}", "accept": "application/json", "User-Agent": "CineMatch/1.0"})
+    try:
+        with urlopen(req, timeout=12) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except HTTPError as exc:
+        log.warning("TMDB returned HTTP %s", exc.code)
+        raise HTTPException(status_code=502, detail="The movie catalogue service returned an error. Please try again shortly.")
+    except (URLError, TimeoutError, json.JSONDecodeError):
+        raise HTTPException(status_code=502, detail="Could not reach the movie catalogue. Please try again shortly.")
+
+def normalize_tmdb_movie(m: dict):
+    date = m.get("release_date") or ""
+    return {
+        "id": m.get("id"),
+        "title": m.get("title") or m.get("original_title") or "Untitled",
+        "original_title": m.get("original_title") or "",
+        "overview": m.get("overview") or "No synopsis available yet.",
+        "year": date[:4] if len(date) >= 4 else "—",
+        "rating": round(float(m.get("vote_average") or 0), 1),
+        "votes": int(m.get("vote_count") or 0),
+        "poster": f"https://image.tmdb.org/t/p/w500{m['poster_path']}" if m.get("poster_path") else None,
+        "backdrop": f"https://image.tmdb.org/t/p/w1280{m['backdrop_path']}" if m.get("backdrop_path") else None,
+        "language": m.get("original_language") or "",
+        "genres": m.get("genre_ids") or [],
+        "source": "TMDB",
+    }
+
+@app.get("/api/catalog/indian")
+def indian_catalog(page: int = Query(1, ge=1, le=500), language: str | None = None, sort: str = "popularity.desc"):
+    """Paginated Indian cinema catalogue; filter by original language (hi, ta, te, ml, kn, bn, mr, pa, gu, ur)."""
+    allowed_sorts = {"popularity.desc", "vote_average.desc", "primary_release_date.desc", "primary_release_date.asc"}
+    if sort not in allowed_sorts:
+        sort = "popularity.desc"
+    params = {"include_adult": "false", "include_video": "false", "language": "en-US",
+              "page": page, "sort_by": sort, "with_origin_country": "IN"}
+    if language:
+        valid_languages = {"hi", "ta", "te", "ml", "kn", "bn", "mr", "pa", "gu", "ur", "as", "or", "en"}
+        if language not in valid_languages:
+            raise HTTPException(status_code=400, detail="Unsupported Indian cinema language filter.")
+        params["with_original_language"] = language
+    data = tmdb_get("/discover/movie", params)
+    return {"page": data.get("page", page), "total_pages": data.get("total_pages", 0),
+            "total_results": data.get("total_results", 0),
+            "results": [normalize_tmdb_movie(m) for m in data.get("results", [])]}
+
+@app.get("/api/catalog/search")
+def catalog_search(q: str = Query(..., min_length=1, max_length=100), page: int = Query(1, ge=1, le=500), indian_only: bool = True):
+    """Search movie titles through TMDB; restrict to Indian-origin movies by default."""
+    params = {"query": q.strip(), "include_adult": "false", "language": "en-US", "page": page}
+    if indian_only:
+        params["with_origin_country"] = "IN"
+    data = tmdb_get("/search/movie", params)
+    return {"page": data.get("page", page), "total_pages": data.get("total_pages", 0),
+            "total_results": data.get("total_results", 0),
+            "results": [normalize_tmdb_movie(m) for m in data.get("results", [])]}
+
+@app.get("/api/catalog/status")
+def catalog_status():
+    return {"tmdb_configured": bool(os.environ.get("TMDB_READ_ACCESS_TOKEN", "").strip()),
+            "message": "Indian movie catalogue is ready." if os.environ.get("TMDB_READ_ACCESS_TOKEN", "").strip()
+                       else "Add TMDB_READ_ACCESS_TOKEN to your hosting environment to enable the full Indian movie catalogue."}
