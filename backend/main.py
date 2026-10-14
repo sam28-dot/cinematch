@@ -190,9 +190,15 @@ def catalog_search(q: str = Query(..., min_length=1, max_length=100), page: int 
     if indian_only:
         params["with_origin_country"] = "IN"
     data = tmdb_get("/search/movie", params)
+    results = data.get("results", [])
+    if indian_only:
+        # Search/movie does not accept the origin-country filter; use Indian-language
+        # results here, while the dedicated Discover endpoint filters country=IN.
+        indian_languages = {"hi", "ta", "te", "ml", "kn", "bn", "mr", "pa", "gu", "ur", "as", "or"}
+        results = [m for m in results if m.get("original_language") in indian_languages]
     return {"page": data.get("page", page), "total_pages": data.get("total_pages", 0),
-            "total_results": data.get("total_results", 0),
-            "results": [normalize_tmdb_movie(m) for m in data.get("results", [])]}
+            "total_results": len(results) if indian_only else data.get("total_results", 0),
+            "results": [normalize_tmdb_movie(m) for m in results]}
 
 @app.get("/api/catalog/status")
 def catalog_status():
