@@ -1,0 +1,63 @@
+name: CineMatch MVP checks
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  syntax-and-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Python dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Check Python syntax
+        run: python -m compileall -q backend ml
+      - name: Check inline frontend JavaScript syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path("frontend/index.html").read_text(encoding="utf-8")
+          scripts = re.findall(r"<script>(.*?)</script>", html, flags=re.S)
+          assert scripts, "No inline JavaScript found"
+          Path("/tmp/cinematch-inline.js").write_text("\n".join(scripts), encoding="utf-8")
+          PY
+          node --check /tmp/cinematch-inline.js
+      - name: Prepare recommendation dataset
+        run: python -m ml.pipeline
+      - name: Smoke-test API health and catalogue configuration
+        run: |
+          (uvicorn backend.main:app --host 127.0.0.1 --port 8000 >/tmp/cinematch-api.log 2>&1 &)
+          python - <<'PY'
+          import json, time, urllib.request
+          base = "http://127.0.0.1:8000"
+          last = None
+          for _ in range(40):
+              try:
+                  with urllib.request.urlopen(base + "/api/health", timeout=2) as r:
+                      health = json.loads(r.read())
+                  with urllib.request.urlopen(base + "/api/catalog/status", timeout=2) as r:
+                      catalog = json.loads(r.read())
+                  assert health["status"] == "ok"
+                  assert "tmdb_configured" in health
+                  assert "tmdb_configured" in catalog
+                  print("Health endpoint:", health)
+                  print("Catalogue status:", catalog)
+                  break
+              except Exception as e:
+                  last = e
+                  time.sleep(1)
+          else:
+              raise SystemExit(f"API did not become healthy: {last}")
+          PY
