@@ -20,13 +20,14 @@ nav{height:78px;display:flex;align-items:center;justify-content:space-between;ga
 </style>
 </head>
 <body>
-<nav class="wrap"><a class="brand" href="#" aria-label="CineMatch home"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M4 5.5h16v13H4zM8 5.5v13M16 5.5v13M4 9h4m8 0h4M4 15h4m8 0h4"/></svg></span><span>Cine<span>Match</span></span></a><div class="navlinks"><a href="#discover">Discover</a><a href="#indian">Indian cinema</a><a href="#about">About</a></div><a class="nav-cta" href="#discover">Explore films ↗</a></nav>
+<nav class="wrap"><a class="brand" href="#" aria-label="CineMatch home"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M4 5.5h16v13H4zM8 5.5v13M16 5.5v13M4 9h4m8 0h4M4 15h4m8 0h4"/></svg></span><span>Cine<span>Match</span></span></a><div class="navlinks"><a href="#discover">Discover</a><a href="#indian">Indian cinema</a><a href="#hollywood">Hollywood</a><a href="#about">About</a></div><a class="nav-cta" href="#discover">Explore films ↗</a></nav>
 <main class="wrap">
 <section class="hero"><div><span class="eyebrow"><span class="dot"></span> Your personal cinema guide</span><h1>Great stories.<br><em>Perfectly matched.</em></h1><p>From Bollywood blockbusters to regional gems, find films that fit your mood, explore new favourites, and build your own watchlist.</p><div class="hero-actions"><a class="primary" href="#indian">Explore Indian cinema <span aria-hidden="true">→</span></a><a class="secondary" href="#about">Meet CineMatch</a></div></div>
 <div class="hero-art" aria-label="Cinematic poster artwork"><div class="glow"></div><div class="poster-stack"><img class="poster one" src="https://image.tmdb.org/t/p/w342/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg" alt="" onerror="this.style.display='none'"><img class="poster two" src="https://image.tmdb.org/t/p/w342/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg" alt="" onerror="this.style.display='none'"><img class="poster three" src="https://image.tmdb.org/t/p/w342/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg" alt="" onerror="this.style.display='none'"><div class="float-tag tag-a">✦ Curated for <strong>your taste</strong></div><div class="float-tag tag-b">🎞️ <strong>Many languages</strong></div></div></div></section>
 <section id="discover" class="searchbox"><form id="search-form"><div class="searchrow"><input class="searchinput" id="query" placeholder="Search movies, titles, genres…" aria-label="Search movies" autocomplete="off"><button class="primary" type="submit">Search movies</button></div><div class="filters"><select id="language" aria-label="Indian cinema language"><option value="">All Indian languages</option><option value="hi">Hindi</option><option value="ta">Tamil</option><option value="te">Telugu</option><option value="ml">Malayalam</option><option value="kn">Kannada</option><option value="bn">Bengali</option><option value="mr">Marathi</option><option value="pa">Punjabi</option><option value="gu">Gujarati</option><option value="ur">Urdu</option><option value="en">English-language Indian films</option></select><select id="sort" aria-label="Sort Indian movies"><option value="popularity.desc">Popular</option><option value="vote_average.desc">Top rated</option><option value="primary_release_date.desc">Newest first</option><option value="primary_release_date.asc">Oldest first</option></select></div></form></section>
 <div id="status" class="status" role="status" aria-live="polite"></div>
 <section id="indian" class="section"><div class="section-head"><div><span class="eyebrow">Made in India</span><h2>Indian cinema, in every language</h2><p>Hindi, Tamil, Telugu, Malayalam, Kannada, Marathi, Bengali and more.</p></div><button id="load-more" class="pill" type="button">Load more films ↓</button></div><div class="tabs"><button class="pill active" data-lang="">All India</button><button class="pill" data-lang="hi">Hindi</button><button class="pill" data-lang="ta">Tamil</button><button class="pill" data-lang="te">Telugu</button><button class="pill" data-lang="ml">Malayalam</button><button class="pill" data-lang="kn">Kannada</button><button class="pill" data-lang="mr">Marathi</button><button class="pill" data-lang="bn">Bengali</button></div><div id="movies" class="grid"><div class="loader">Loading films…</div></div><p class="tmdb-note">Movie details and posters are supplied by TMDB. The catalogue is paginated, so you can keep exploring.</p></section>
+<section id="hollywood" class="section"><div class="section-head"><div><span class="eyebrow">From the US and beyond</span><h2>Hollywood & American cinema</h2><p>Discover US-origin films with posters, ratings, release years and synopses.</p></div><button id="hollywood-more" class="pill" type="button">Load more films ↓</button></div><div id="hollywood-movies" class="grid"><div class="loader">Loading Hollywood films…</div></div><p class="tmdb-note">Powered by the same TMDB API as Indian cinema. Posters are shown when available.</p></section>
 <section id="popular" class="section"><div class="section-head"><div><h2>From your recommendation engine</h2><p>Discover titles from CineMatch’s local recommendation dataset.</p></div><button id="top-rated" class="pill" type="button">Refresh recommendations ↻</button></div><div id="local-movies" class="grid"><div class="loader">Loading recommendations…</div></div></section>
 <section id="about" class="about"><div><span class="eyebrow">About the project</span><h2>CineMatch.<br>Powered by data. Made for movie lovers.</h2><p>CineMatch is a Big Data Analytics project that explores how movie metadata, user ratings and genre information can make film discovery more useful. It combines a live catalogue of Indian cinema with a local recommendation engine, giving viewers one place to discover films across languages.</p><p>The project demonstrates a practical data pipeline: prepare and validate movie-rating data, analyse genre and rating patterns, calculate recommendation scores, and present results through a responsive web application. Live catalogue metadata and posters are supplied by TMDB; the recommendation experiment uses the MovieLens dataset.</p></div><div class="about-cards"><div class="about-card"><b>🇮🇳 Indian-first discovery</b><span>Explore Indian-origin films across languages, with search and filters.</span></div><div class="about-card"><b>📊 Data preparation</b><span>Clean, transform and validate movie and rating records.</span></div><div class="about-card"><b>✦ Hybrid recommendations</b><span>Popularity ranking, TF-IDF content similarity and item-item collaborative filtering.</span></div><div class="about-card"><b>🔎 Explainable results</b><span>Use ratings, genres and similarity signals to help explore new titles.</span></div></div></section>
 </main>
@@ -155,6 +156,27 @@ nav{height:78px;display:flex;align-items:center;justify-content:space-between;ga
       setStatus("Search failed. Please retry.");
     }
   }
+  let hollywoodPage = 1, hollywoodRequest = 0;
+  async function loadHollywood(reset = true) {
+    if (reset) hollywoodPage = 1;
+    const call = ++hollywoodRequest, root = $("#hollywood-movies");
+    root.replaceChildren(node("div", "loader", "Loading Hollywood films…"));
+    $("#hollywood-more").hidden = true;
+    try {
+      const params = new URLSearchParams({ page: String(hollywoodPage), sort: $("#sort").value || "popularity.desc" });
+      const data = await api("/api/catalog/hollywood?" + params.toString());
+      if (call !== hollywoodRequest) return;
+      root.replaceChildren();
+      const list = Array.isArray(data.results) ? data.results : [];
+      if (!list.length) root.append(node("div", "empty", "No Hollywood titles returned. Please retry."));
+      else list.forEach(movie => root.append(posterCard(movie)));
+      $("#hollywood-more").hidden = !list.length || hollywoodPage >= Number(data.total_pages || 1);
+      setStatus("Hollywood catalogue · " + Number(data.total_results || 0).toLocaleString() + " US-origin titles available.");
+    } catch (error) {
+      if (call !== hollywoodRequest) return;
+      showRetry(root, error.message || "Hollywood catalogue could not load.", () => loadHollywood());
+    }
+  }
   async function loadLocal() {
     const root = $("#local-movies");
     try {
@@ -201,9 +223,24 @@ nav{height:78px;display:flex;align-items:center;justify-content:space-between;ga
     } catch (error) { setStatus(error.message || "Could not load more films."); }
     finally { button.disabled = false; button.textContent = "Load more films ↓"; }
   });
+  $("#hollywood-more").addEventListener("click", async () => {
+    const button = $("#hollywood-more"), nextPage = hollywoodPage + 1;
+    button.disabled = true; button.textContent = "Loading…";
+    try {
+      const params = new URLSearchParams({ page: String(nextPage), sort: $("#sort").value || "popularity.desc" });
+      const data = await api("/api/catalog/hollywood?" + params.toString());
+      const list = Array.isArray(data.results) ? data.results : [];
+      list.forEach(movie => $("#hollywood-movies").append(posterCard(movie)));
+      hollywoodPage = nextPage;
+      button.hidden = !list.length || hollywoodPage >= Number(data.total_pages || 1);
+      setStatus("Hollywood page " + hollywoodPage + " · " + Number(data.total_results || 0).toLocaleString() + " titles.");
+    } catch (error) { setStatus(error.message || "Could not load more Hollywood films."); }
+    finally { button.disabled = false; button.textContent = "Load more films ↓"; }
+  });
   $("#top-rated").addEventListener("click", loadLocal);
   $("#year").textContent = new Date().getFullYear();
   loadIndian();
+  loadHollywood();
   loadLocal();
 })();
 </script>
