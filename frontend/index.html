@@ -32,40 +32,179 @@ nav{height:78px;display:flex;align-items:center;justify-content:space-between;ga
 </main>
 <footer><div class="wrap footerrow"><span>© <span id="year"></span> CineMatch · Made for curious movie lovers.</span><span>Movie data and images: TMDB · Not affiliated with TMDB.</span></div></footer>
 <script>
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const uid=localStorage.cm_user||(localStorage.cm_user="u"+Math.random().toString(36).slice(2,9));
-const api=async(p,o)=>{const r=await fetch(p,o);const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.detail||r.status);return d};
-const el=(tag,attrs={},...children)=>{const e=document.createElement(tag);for(const [k,v] of Object.entries(attrs)){if(k==="className")e.className=v;else if(k.startsWith("on")&&typeof v==="function")e.addEventListener(k.slice(2).toLowerCase(),v);else if(v!==undefined&&v!==null)e.setAttribute(k,v)}for(const c of children)if(c!==null&&c!==undefined)e.append(typeof c==="string"?document.createTextNode(c):c);return e};
-let indianPage=1,selectedLanguage="",isSearching=false;
-const setStatus=t=>$("#status").textContent=t;
-function posterCard(m,kind="tmdb"){
- const tmdb=kind==="tmdb", title=m.title||"Untitled",year=m.year||"—",rating=tmdb?m.rating:m.wr;
- const poster=tmdb?(m.poster||m.backdrop||null):null;
- const art=el("div",{className:"poster-placeholder","aria-hidden":"true"},el("span",{},"🎬"),el("span",{className:"poster-fallback-title"},title));
- const frame=el("a",{className:"poster-link",href:tmdb&&m.id?"https://www.themoviedb.org/movie/"+m.id:"#",target:tmdb?"_blank":null,rel:tmdb?"noopener noreferrer":null,"aria-label":"View "+title});
- const image=poster?el("img",{className:"movie-poster",src:poster,alt:title+" poster",loading:"eager",decoding:"async",onerror:e=>{e.currentTarget.style.display="none";if(!frame.contains(art))frame.append(art);}}):null;
- if(image){frame.append(image)}else frame.append(art);
- if(rating&&Number(rating)>0)frame.append(el("span",{className:"rating"},"★ "+Number(rating).toFixed(1)));
- const meta=tmdb?year+" · "+(m.language||"").toUpperCase():year+" · "+(m.genres||"").replaceAll("|"," · ");
- const info=el("div",{className:"movie"},frame,el("h3",{title},title),el("div",{className:"meta"},meta));
- if(tmdb&&m.overview)info.append(el("div",{className:"meta",style:"display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:5px"},m.overview));
- const actions=el("div",{className:"movie-actions"});
- if(tmdb){actions.append(el("button",{className:"mini",type:"button",onclick:()=>{const list=JSON.parse(localStorage.cm_watchlist||"[]");if(!list.some(x=>x.id===m.id)){list.push({id:m.id,title:m.title,year:m.year,poster:m.poster});localStorage.cm_watchlist=JSON.stringify(list);setStatus(title+" added to your browser watchlist.")}else setStatus("Already in your browser watchlist.")}},"＋ Watchlist"))}
- else {actions.append(el("button",{className:"mini",type:"button",onclick:()=>api("/api/recommendations/similar/"+m.movie_id).then(d=>{renderLocal(d,"Similar to "+title);$("#popular").scrollIntoView({behavior:"smooth"})}).catch(e=>setStatus(e.message))},"Similar"),el("button",{className:"mini",type:"button",onclick:()=>api("/api/users/"+uid+"/movies/"+m.movie_id,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({status:"list"})}).then(()=>setStatus(title+" added to your list.")).catch(e=>setStatus(e.message))},"＋ Watchlist"))}
- info.append(actions);return info
-}
-function renderIndian(data,title){const root=$("#movies");root.replaceChildren();const list=data.results||[];if(!list.length){root.append(el("div",{className:"empty"},"No films returned for this filter. Try another language or search."));return}list.forEach(m=>root.append(posterCard(m)));setStatus(title?title+" · "+(data.total_results||list.length).toLocaleString()+" titles in catalogue.":"Showing Indian cinema · page "+indianPage)}
-function renderLocal(data,title){const root=$("#local-movies");root.replaceChildren();const list=Array.isArray(data)?data:data.results||[];if(!list.length){root.append(el("div",{className:"empty"},"No matching titles in the local dataset."));return}list.forEach(m=>root.append(posterCard(m,"local")));if(title)root.parentElement.querySelector("h2").textContent=title}
-async function loadIndian(reset=true){if(reset)indianPage=1;selectedLanguage=$("#language").value||selectedLanguage;const sort=$("#sort").value;$("#movies").replaceChildren(el("div",{className:"loader"},"Finding films from across India…"));try{const p=new URLSearchParams({page:indianPage,sort});if(selectedLanguage)p.set("language",selectedLanguage);const d=await api("/api/catalog/indian?"+p);renderIndian(d);$("#load-more").hidden=indianPage>=d.total_pages;setStatus("Showing "+d.results.length+" films · "+Number(d.total_results||0).toLocaleString()+" Indian titles indexed")}catch(e){$("#movies").replaceChildren(el("div",{className:"empty"},e.message));$("#load-more").hidden=true;setStatus("Catalogue setup needed. See the setup note in the About section or README.")}}
-async function searchMovies(q){if(!q.trim()){loadIndian();return}isSearching=true;$("#movies").replaceChildren(el("div",{className:"loader"},"Searching Indian cinema…"));try{const lang=$("#language").value;const p=new URLSearchParams({q:q.trim(),indian_only:"true"});const d=await api("/api/catalog/search?"+p);renderIndian(d,"Search results");$("#load-more").hidden=true;setStatus("Search results for “"+q.trim()+"”")}catch(e){$("#movies").replaceChildren(el("div",{className:"empty"},e.message));setStatus("Search is unavailable until the movie catalogue is configured.")}$("#indian").scrollIntoView({behavior:"smooth",block:"start"})}
-async function loadLocal(){try{const d=await api("/api/recommendations/popular?k=15");renderLocal(d)}catch(e){$("#local-movies").replaceChildren(el("div",{className:"empty"},"The local recommendation service is not available right now."))}}
-$("#search-form").addEventListener("submit",e=>{e.preventDefault();searchMovies($("#query").value)});
-$("#language").addEventListener("change",()=>{selectedLanguage=$("#language").value;$$("[data-lang]").forEach(b=>b.classList.toggle("active",b.dataset.lang===selectedLanguage));loadIndian()});
-$("#sort").addEventListener("change",()=>loadIndian());
-$$("[data-lang]").forEach(b=>b.addEventListener("click",()=>{$$("#language option").forEach(o=>{});selectedLanguage=b.dataset.lang;$("#language").value=selectedLanguage;$$("[data-lang]").forEach(x=>x.classList.toggle("active",x===b));$("#query").value="";loadIndian()}));
-$("#load-more").addEventListener("click",()=>{indianPage++;const lang=selectedLanguage,sort=$("#sort").value;const p=new URLSearchParams({page:indianPage,sort});if(lang)p.set("language",lang);api("/api/catalog/indian?"+p).then(d=>{d.results.forEach(m=>$("#movies").append(posterCard(m)));$("#load-more").hidden=indianPage>=d.total_pages;setStatus("Page "+indianPage+" · "+Number(d.total_results||0).toLocaleString()+" titles in catalogue")}).catch(e=>{indianPage--;setStatus(e.message)})});
-$("#top-rated").addEventListener("click",loadLocal);$("#year").textContent=new Date().getFullYear();
-api("/api/catalog/status").then(s=>{if(!s.tmdb_configured)setStatus(s.message)}).catch(()=>{});
-loadIndian();loadLocal();
+(() => {
+  "use strict";
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => Array.from(document.querySelectorAll(s));
+  const status = $("#status");
+  let indianPage = 1, selectedLanguage = "", requestNumber = 0;
+  const setStatus = (message) => { if (status) status.textContent = message || ""; };
+  const escapeText = (value) => String(value ?? "");
+  async function api(path) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 20000);
+    try {
+      const response = await fetch(path, { signal: controller.signal, headers: { Accept: "application/json" } });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.detail || data.message || ("Request failed (" + response.status + ")"));
+      return data;
+    } catch (error) {
+      if (error.name === "AbortError") throw new Error("The catalogue took too long to respond. Please tap Retry.");
+      if (error instanceof TypeError) throw new Error("Could not connect to CineMatch. Check your internet connection and retry.");
+      throw error;
+    } finally { clearTimeout(timer); }
+  }
+  function node(tag, className, text) {
+    const n = document.createElement(tag);
+    if (className) n.className = className;
+    if (text !== undefined && text !== null) n.textContent = text;
+    return n;
+  }
+  function posterCard(movie) {
+    const title = escapeText(movie.title || movie.original_title || "Untitled");
+    const card = node("article", "movie");
+    const link = node("a", "poster-link");
+    link.href = movie.id ? "https://www.themoviedb.org/movie/" + encodeURIComponent(movie.id) : "#";
+    link.target = "_blank"; link.rel = "noopener noreferrer";
+    link.setAttribute("aria-label", "View " + title + " on TMDB");
+    if (movie.poster || movie.backdrop) {
+      const img = node("img", "movie-poster");
+      img.src = movie.poster || movie.backdrop; img.alt = title + " poster"; img.loading = "lazy"; img.decoding = "async";
+      img.onerror = () => { img.remove(); if (!link.querySelector(".poster-placeholder")) link.append(node("div", "poster-placeholder", "🎬  " + title)); };
+      link.append(img);
+    } else link.append(node("div", "poster-placeholder", "🎬  " + title));
+    if (Number(movie.rating) > 0) link.append(node("span", "rating", "★ " + Number(movie.rating).toFixed(1)));
+    card.append(link, node("h3", "", title), node("div", "meta", (movie.year || "—") + " · " + String(movie.language || "").toUpperCase()));
+    if (movie.overview) {
+      const overview = node("p", "meta", movie.overview);
+      overview.style.cssText = "display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin:7px 0 0";
+      card.append(overview);
+    }
+    const actions = node("div", "movie-actions");
+    const watch = node("button", "mini", "＋ Watchlist"); watch.type = "button";
+    watch.addEventListener("click", () => {
+      try {
+        const list = JSON.parse(localStorage.getItem("cm_watchlist") || "[]");
+        if (list.some(item => String(item.id) === String(movie.id))) { setStatus(title + " is already in your watchlist."); return; }
+        list.push({ id: movie.id, title, year: movie.year, poster: movie.poster });
+        localStorage.setItem("cm_watchlist", JSON.stringify(list));
+        setStatus(title + " added to your browser watchlist.");
+      } catch (_) { setStatus("Your browser blocked local storage; this title could not be saved."); }
+    });
+    actions.append(watch); card.append(actions);
+    return card;
+  }
+  function showRetry(root, message, retry) {
+    root.replaceChildren();
+    const box = node("div", "empty");
+    box.append(node("p", "", message));
+    const button = node("button", "primary", "Retry"); button.type = "button"; button.addEventListener("click", retry);
+    box.append(button); root.append(box);
+  }
+  function renderIndian(data, title) {
+    const root = $("#movies");
+    root.replaceChildren();
+    const list = Array.isArray(data.results) ? data.results : [];
+    if (!list.length) {
+      root.append(node("div", "empty", "No films found for this filter. Choose All Indian languages or try another search."));
+      setStatus("No results returned. You can change the language or search term.");
+    } else {
+      const fragment = document.createDocumentFragment();
+      list.forEach(movie => fragment.append(posterCard(movie)));
+      root.append(fragment);
+      setStatus(title ? title + " · " + Number(data.total_results || list.length).toLocaleString() + " results." :
+        "Showing " + list.length + " Indian films · " + Number(data.total_results || 0).toLocaleString() + " titles available.");
+    }
+    $("#load-more").hidden = !list.length || indianPage >= Number(data.total_pages || 1);
+  }
+  async function loadIndian(reset = true) {
+    if (reset) indianPage = 1;
+    const call = ++requestNumber;
+    selectedLanguage = $("#language").value || "";
+    const sort = $("#sort").value || "popularity.desc";
+    const root = $("#movies");
+    root.replaceChildren(node("div", "loader", "Loading Indian cinema…"));
+    $("#load-more").hidden = true;
+    try {
+      const params = new URLSearchParams({ page: String(indianPage), sort });
+      if (selectedLanguage) params.set("language", selectedLanguage);
+      const data = await api("/api/catalog/indian?" + params.toString());
+      if (call !== requestNumber) return;
+      renderIndian(data);
+    } catch (error) {
+      if (call !== requestNumber) return;
+      showRetry(root, error.message || "The movie catalogue could not load.", () => loadIndian());
+      setStatus("Catalogue connection needs a retry.");
+    }
+  }
+  async function searchMovies(query) {
+    const q = query.trim();
+    if (!q) { await loadIndian(); return; }
+    const call = ++requestNumber, root = $("#movies");
+    root.replaceChildren(node("div", "loader", "Searching Indian cinema…"));
+    $("#load-more").hidden = true;
+    try {
+      const params = new URLSearchParams({ q, indian_only: "true" });
+      const data = await api("/api/catalog/search?" + params.toString());
+      if (call !== requestNumber) return;
+      renderIndian(data, "Search: " + q);
+      $("#indian").scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (error) {
+      if (call !== requestNumber) return;
+      showRetry(root, error.message || "Search failed.", () => searchMovies(q));
+      setStatus("Search failed. Please retry.");
+    }
+  }
+  async function loadLocal() {
+    const root = $("#local-movies");
+    try {
+      const data = await api("/api/recommendations/popular?k=15");
+      const list = Array.isArray(data) ? data : (data.results || []);
+      root.replaceChildren();
+      if (!list.length) { root.append(node("div", "empty", "The recommendation dataset has no titles yet.")); return; }
+      list.forEach(movie => {
+        const card = node("article", "movie"), title = escapeText(movie.title || "Untitled");
+        const link = node("a", "poster-link");
+        if (movie.poster) {
+          const img = node("img", "movie-poster"); img.src = movie.poster; img.alt = title; img.loading = "lazy";
+          img.onerror = () => { img.remove(); link.append(node("div", "poster-placeholder", "🎬  " + title)); }; link.append(img);
+        } else link.append(node("div", "poster-placeholder", "🎬  " + title));
+        card.append(link, node("h3", "", title), node("div", "meta", (movie.year || "—") + " · " + (movie.genres || "")));
+        root.append(card);
+      });
+    } catch (error) {
+      showRetry(root, "Local recommendations are temporarily unavailable. The Indian movie catalogue above works independently.", loadLocal);
+    }
+  }
+  $("#search-form").addEventListener("submit", event => { event.preventDefault(); searchMovies($("#query").value); });
+  $("#language").addEventListener("change", () => {
+    $$("[data-lang]").forEach(button => button.classList.toggle("active", button.dataset.lang === $("#language").value));
+    $("#query").value = ""; loadIndian();
+  });
+  $("#sort").addEventListener("change", () => loadIndian());
+  $$("[data-lang]").forEach(button => button.addEventListener("click", () => {
+    $("#language").value = button.dataset.lang; $("#query").value = "";
+    $$("[data-lang]").forEach(other => other.classList.toggle("active", other === button));
+    loadIndian();
+  }));
+  $("#load-more").addEventListener("click", async () => {
+    const button = $("#load-more"), nextPage = indianPage + 1;
+    button.disabled = true; button.textContent = "Loading…";
+    try {
+      const params = new URLSearchParams({ page: String(nextPage), sort: $("#sort").value || "popularity.desc" });
+      if ($("#language").value) params.set("language", $("#language").value);
+      const data = await api("/api/catalog/indian?" + params.toString());
+      const list = Array.isArray(data.results) ? data.results : [];
+      list.forEach(movie => $("#movies").append(posterCard(movie)));
+      indianPage = nextPage; button.hidden = !list.length || indianPage >= Number(data.total_pages || 1);
+      setStatus("Page " + indianPage + " · " + Number(data.total_results || 0).toLocaleString() + " Indian titles indexed.");
+    } catch (error) { setStatus(error.message || "Could not load more films."); }
+    finally { button.disabled = false; button.textContent = "Load more films ↓"; }
+  });
+  $("#top-rated").addEventListener("click", loadLocal);
+  $("#year").textContent = new Date().getFullYear();
+  loadIndian();
+  loadLocal();
+})();
 </script>
 </body></html>
