@@ -1,0 +1,43 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CineMatch</title>
+<style>
+:root{--bg:#0b0b0d;--card:#17171b;--tx:#f4f4f5;--mu:#9a9aa3;--red:#b3122f}
+body{margin:0;font:16px system-ui,sans-serif;background:var(--bg);color:var(--tx)}
+header{padding:2rem 1.5rem 1rem;background:linear-gradient(#2a0610,var(--bg))}
+h1{margin:0;color:var(--red);letter-spacing:.04em}p.tag{margin:.25rem 0 1rem;color:var(--mu)}
+form,.bar{display:flex;gap:.5rem;flex-wrap:wrap;margin:.5rem 0}
+input,select,button{background:var(--card);color:var(--tx);border:1px solid #333;border-radius:6px;padding:.5rem .75rem;font:inherit}
+button{cursor:pointer}button.p{background:var(--red);border-color:var(--red)}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #fff}
+#note{padding:.5rem 1.5rem;color:#f5c26b}main{padding:1rem 1.5rem 3rem}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem}
+.c{background:var(--card);border-radius:10px;padding:1rem;display:flex;flex-direction:column;gap:.4rem;border-top:3px solid var(--red)}
+.c b{font-size:1.05rem}.m{color:var(--mu);font-size:.85rem}.why{color:#e8a0ad;font-size:.85rem}.c .bar button{padding:.3rem .5rem;font-size:.8rem}
+footer{padding:1rem 1.5rem;color:var(--mu);font-size:.8rem}
+</style>
+<header><h1>CineMatch</h1><p class="tag">Your Next Favorite Movie Starts Here.</p>
+<form id="f"><input id="q" placeholder="Search title or genre" aria-label="Search"><select id="g" aria-label="Genre"><option value="">All genres</option></select>
+<input id="v" type="number" min="0" value="0" style="width:7rem" aria-label="Minimum votes" title="Minimum votes"><button class="p">Search</button></form>
+<div class="bar"><button id="fy">For You</button><button id="top">Top rated</button></div></header>
+<div id="note" role="status"></div><main><h2 id="h"></h2><div id="grid"></div></main>
+<footer>Dataset: MovieLens (GroupLens Research). College Big Data Analytics project. Watch availability is not verified; no titles are labelled free. Ratings and lists are stored by an anonymous browser id.</footer>
+<script>
+const $=s=>document.querySelector(s),uid=localStorage.cm_user||(localStorage.cm_user="u"+Math.random().toString(36).slice(2,9));
+const api=async(p,o)=>{const r=await fetch(p,o);if(!r.ok)throw new Error((await r.json().catch(()=>({}))).detail||r.status);return r.json()};
+const el=(t,a={},...k)=>{const e=Object.assign(document.createElement(t),a);e.append(...k);return e};
+const put=(id,b)=>api(`/api/users/${uid}/movies/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)});
+function show(title,list){$("#h").textContent=title;const g=$("#grid");g.replaceChildren();
+ if(!list.length){g.append(el("p",{className:"m",textContent:"No movies match. Try clearing filters."}));return}
+ for(const m of list){const rate=el("select",{ariaLabel:"Rate"},el("option",{value:"",textContent:"Rate"}),...[1,2,3,4,5].map(n=>el("option",{value:n,textContent:"★".repeat(n)})));
+  rate.onchange=()=>rate.value&&put(m.movie_id,{rating:+rate.value}).then(()=>flash("Rating saved. It will shape your next For You list."),e=>flash(e.message));
+  const act=(t,fn)=>el("button",{textContent:t,onclick:fn});
+  g.append(el("div",{className:"c"},el("b",{textContent:m.title}),el("span",{className:"m",textContent:`${m.year??"Year n/a"} · ${(m.genres||"n/a").replaceAll("|",", ")}`}),
+   el("span",{className:"m",textContent:`Weighted rating ${m.wr.toFixed(2)} · ${m.votes} votes`}),m.reason?el("span",{className:"why",textContent:m.reason}):"",
+   el("div",{className:"bar"},act("Similar",()=>load(`/api/recommendations/similar/${m.movie_id}`,"Similar to "+m.title)),
+   act("+ My List",()=>put(m.movie_id,{status:"list"}).then(()=>flash("Added to My List"))),act("Watched",()=>put(m.movie_id,{status:"watched"}).then(()=>flash("Marked watched"))),rate)))}}
+const flash=t=>{$("#note").textContent=t};
+async function load(url,title,key){try{flash("");const d=await api(url);show(title,key?d[key]:d.results||d);if(d.cold_start)flash("New here: showing recommendations from popularity. Rate a few movies to personalise.")}catch(e){flash("Error: "+e.message+" (try again)")}}
+$("#f").onsubmit=e=>{e.preventDefault();const p=new URLSearchParams({q:$("#q").value,genres:$("#g").value,min_votes:$("#v").value||0});load("/api/movies?"+p,"Results")};
+$("#fy").onclick=()=>load(`/api/recommendations/user/${uid}`,"For You");$("#top").onclick=()=>load("/api/recommendations/popular?k=20","Top rated");
+api("/api/genres").then(gs=>gs.forEach(x=>$("#g").append(el("option",{value:x,textContent:x}))));
+api("/api/health").then(h=>h.is_sample&&flash("Demo mode: synthetic sample data, not real MovieLens."));
+load("/api/recommendations/popular?k=20","Top rated");
+</script></html>

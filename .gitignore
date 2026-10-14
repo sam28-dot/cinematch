@@ -1,0 +1,6 @@
+data/raw/*
+data/processed/*
+data/*.db
+__pycache__/
+.env
+node_modules/

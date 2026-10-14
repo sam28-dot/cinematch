@@ -1,0 +1,35 @@
+{
+  "popularity": {
+    "precision@10": 0.051535836177474405,
+    "recall@10": 0.056533078595685224,
+    "ndcg@10": 0.06566556529807636,
+    "catalog_coverage": 0.029726516052318668
+  },
+  "content": {
+    "precision@10": 0.023208191126279865,
+    "recall@10": 0.02225824457610583,
+    "ndcg@10": 0.028010329441169546,
+    "catalog_coverage": 0.1539833531510107
+  },
+  "cf": {
+    "precision@10": 0.11365187713310579,
+    "recall@10": 0.14904173497834866,
+    "ndcg@10": 0.16781528965064021,
+    "catalog_coverage": 0.11236623067776456
+  },
+  "hybrid": {
+    "precision@10": 0.08805460750853243,
+    "recall@10": 0.10466175936434438,
+    "ndcg@10": 0.1212550308082084,
+    "catalog_coverage": 0.12960760998810938
+  },
+  "_meta": {
+    "users_evaluated": 293,
+    "k": 10,
+    "relevance_threshold": 4,
+    "split": "per-user temporal 80/20",
+    "rmse_mae": "not computed (ranking models, no rating predictor)",
+    "source": "movielens-100k",
+    "is_sample": false
+  }
+}
