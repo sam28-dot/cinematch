@@ -119,7 +119,7 @@ nav{height:78px;display:flex;align-items:center;justify-content:space-between;ga
     const b=el("button","primary","Retry");b.type="button";b.addEventListener("click",retry);box.append(b);root.append(box);
   }
   async function loadIndian(reset=true) {
-    if(reset){indianPage=1;indianQuery="";}
+    if(reset){indianPage=1;indianQuery="";$("#indian .section-head h2").textContent="Indian cinema, in every language";$("#indian .section-head p").textContent="Hindi, Tamil, Telugu, Malayalam, Kannada, Marathi, Bengali and more.";}
     const root=$("#movies"), button=$("#load-more"), language=$("#language").value||"", sort=$("#sort").value||"popularity.desc";
     const req=++latestSearch;root.replaceChildren(el("div","loader","Loading Indian cinema…"));button.hidden=true;
     try{
@@ -156,6 +156,8 @@ nav{height:78px;display:flex;align-items:center;justify-content:space-between;ga
       const data=await api("/api/catalog/search?"+p);
       if(req!==latestSearch)return;
       indianQuery=q;
+      $("#indian .section-head h2").textContent=indianOnly?"Indian cinema search results":"Search results across the catalogue";
+      $("#indian .section-head p").textContent=indianOnly?"Matches in common Indian-language cinema.":"Matches from TMDB’s wider movie catalogue.";
       drawGrid(root,data.results||[],"No matches found. Try a shorter title or switch to All movies.");
       setStatus("Search results for “"+q+"” · "+Number(data.total_results||0).toLocaleString()+" matches.");
       $("#indian").scrollIntoView({behavior:"smooth",block:"start"});
