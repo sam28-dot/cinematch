@@ -145,8 +145,14 @@ def tmdb_get(path: str, params: dict):
         with urlopen(req, timeout=12) as response:
             return json.loads(response.read().decode("utf-8"))
     except HTTPError as exc:
-        log.warning("TMDB returned HTTP %s", exc.code)
-        raise HTTPException(status_code=502, detail="The movie catalogue service returned an error. Please try again shortly.")
+        log.warning("TMDB returned HTTP %s for %s", exc.code, path)
+        if exc.code in (401, 403):
+            raise HTTPException(status_code=503, detail="TMDB rejected the server token. Check TMDB_READ_ACCESS_TOKEN in the hosting environment.")
+        if exc.code == 429:
+            raise HTTPException(status_code=503, detail="TMDB rate limit reached. Wait briefly, then retry.")
+        if exc.code >= 500:
+            raise HTTPException(status_code=503, detail="TMDB is temporarily unavailable. Please retry shortly.")
+        raise HTTPException(status_code=502, detail="The movie catalogue request failed. Please try again shortly.")
     except (URLError, TimeoutError, json.JSONDecodeError):
         raise HTTPException(status_code=502, detail="Could not reach the movie catalogue. Please try again shortly.")
 
