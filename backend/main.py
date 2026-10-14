@@ -184,22 +184,44 @@ def indian_catalog(page: int = Query(1, ge=1, le=500), language: str | None = No
             "results": [normalize_tmdb_movie(m) for m in data.get("results", [])]}
 
 @app.get("/api/catalog/search")
-def catalog_search(q: str = Query(..., min_length=1, max_length=100), page: int = Query(1, ge=1, le=500), indian_only: bool = True):
-    """Search movie titles through TMDB; return Indian-language cinema only by default."""
+def catalog_search(q: str = Query(..., min_length=1, max_length=100),
+                   page: int = Query(1, ge=1, le=500),
+                   indian_only: bool = True):
+    """Search titles via TMDB. Indian mode filters to common Indian-language films."""
     params = {"query": q.strip(), "include_adult": "false", "language": "en-US", "page": page}
-    if indian_only:
-        params["with_origin_country"] = "IN"
     data = tmdb_get("/search/movie", params)
     results = data.get("results", [])
     if indian_only:
-        # Search/movie does not accept the origin-country filter; use Indian-language
-        # results here, while the dedicated Discover endpoint filters country=IN.
+        # Search/movie has no origin-country filter. Restrict the result language to
+        # common Indian cinema languages; English titles are excluded to avoid
+        # incorrectly mixing US/UK films into the Indian-only search.
         indian_languages = {"hi", "ta", "te", "ml", "kn", "bn", "mr", "pa", "gu", "ur", "as", "or"}
         results = [m for m in results if m.get("original_language") in indian_languages]
     return {"page": data.get("page", page), "total_pages": data.get("total_pages", 0),
             "total_results": len(results) if indian_only else data.get("total_results", 0),
             "results": [normalize_tmdb_movie(m) for m in results]}
 
+
+@app.get("/api/catalog/movie/{movie_id}")
+def catalog_movie_details(movie_id: int):
+    """Return TMDB movie details for the in-site details view."""
+    data = tmdb_get(f"/movie/{movie_id}", {"language": "en-US"})
+    movie = normalize_tmdb_movie(data)
+    movie["genres"] = [g.get("name", "") for g in data.get("genres", []) if g.get("name")]
+    movie["runtime"] = data.get("runtime")
+    movie["status"] = data.get("status")
+    movie["production_countries"] = [c.get("name", "") for c in data.get("production_countries", [])]
+    return movie
+
+
+@app.get("/api/catalog/recommendations/{movie_id}")
+def catalog_movie_recommendations(movie_id: int, page: int = Query(1, ge=1, le=500)):
+    """TMDB-based related movie recommendations for a catalogue title."""
+    data = tmdb_get(f"/movie/{movie_id}/recommendations", {"language": "en-US", "page": page})
+    return {"page": data.get("page", page), "total_pages": data.get("total_pages", 0),
+            "total_results": data.get("total_results", 0),
+            "results": [normalize_tmdb_movie(m) for m in data.get("results", [])]}
+    
 @app.get("/api/catalog/status")
 def catalog_status():
     return {"tmdb_configured": bool(os.environ.get("TMDB_READ_ACCESS_TOKEN", "").strip()),
