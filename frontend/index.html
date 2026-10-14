@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#09090d">
-<meta name="description" content="Discover your next favourite film with CineMatch — personalised recommendations and Indian cinema across languages.">
+<meta name="description" content="Discover Indian cinema and Hollywood films, search movie posters and ratings, and save your next watch with CineMatch.">
 <title>CineMatch — Find your next favourite</title>
 <link rel="preconnect" href="https://image.tmdb.org"><link rel="preconnect" href="https://api.themoviedb.org">
 <style>
@@ -17,231 +17,220 @@ nav{height:78px;display:flex;align-items:center;justify-content:space-between;ga
 @media(max-width:1000px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.hero{grid-template-columns:1fr .8fr}.poster{width:135px;height:205px}.poster.two{width:155px;height:232px}}
 @media(max-width:720px){.wrap{width:calc(100% - 28px)}nav{height:68px}.navlinks{gap:14px}.navlinks a:nth-child(2){display:none}.nav-cta{padding:9px 11px;font-size:.82rem}.hero{padding:45px 0 26px;grid-template-columns:1fr;gap:8px}.hero h1{font-size:clamp(3rem,12vw,4.5rem)}.hero-art{min-height:260px}.poster-stack{height:260px}.poster{width:128px;height:190px}.poster.two{width:145px;height:212px}.tag-a{left:1%}.tag-b{right:1%}.searchbox{padding:12px;margin-bottom:22px}.searchrow{grid-template-columns:1fr}.searchrow button{padding:12px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.section{padding:20px 0 28px}.section-head{align-items:start;flex-direction:column}.about{grid-template-columns:1fr;padding:22px;gap:12px}.about h2{font-size:1.7rem}}
 @media(min-width:721px) and (max-width:850px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{grid-template-columns:1fr}.hero-art{min-height:290px}}
+
+/* MVP interaction states */
+.poster.one{background:linear-gradient(155deg,#4c1d95,#111827 70%);display:flex;align-items:end;padding:14px;color:#fff;font-weight:900;font-size:1.1rem;letter-spacing:-.04em}.poster.two{background:linear-gradient(150deg,#9f1239,#22111f 72%);display:flex;align-items:end;padding:16px;color:#fff;font-weight:900;font-size:1.35rem;letter-spacing:-.05em}.poster.three{background:linear-gradient(155deg,#0f766e,#111827 72%);display:flex;align-items:end;padding:13px;color:#fff;font-weight:900;font-size:1.05rem;letter-spacing:-.04em}
+#watchlist{border-top:1px solid #ffffff0d;padding-top:32px}.movie-actions .mini{flex:1}.detail-button{background:#fb718510}.dialog{width:min(760px,calc(100% - 24px));max-height:88vh;overflow:auto;border:1px solid #ffffff24;border-radius:22px;padding:0;background:#111119;color:#f7f7fb;box-shadow:0 30px 100px #000b}.dialog::backdrop{background:#030308d9;backdrop-filter:blur(5px)}.dialog-head{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:#111119ef;border-bottom:1px solid #ffffff12;z-index:2}.dialog-body{padding:22px}.detail-hero{display:grid;grid-template-columns:170px 1fr;gap:20px}.detail-poster{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:12px;background:#242431}.detail-copy h2{margin:0 0 8px;font-size:1.8rem;letter-spacing:-.04em}.detail-copy p{color:#b8b8c7;line-height:1.7}.detail-actions{display:flex;gap:8px;flex-wrap:wrap}.detail-recs{margin-top:24px}.detail-recs h3{margin-bottom:12px}.detail-recs .grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.detail-recs .movie h3{font-size:.82rem}.detail-recs .movie .meta,.detail-recs .movie-actions{display:none}.status-chip{display:inline-flex;align-items:center;border:1px solid #ffffff1c;background:#ffffff08;border-radius:999px;padding:5px 9px;color:#fda4af;font-size:.75rem;margin-bottom:8px}
+@media(max-width:720px){.detail-hero{grid-template-columns:100px 1fr;gap:13px}.detail-copy h2{font-size:1.25rem}.dialog-body{padding:15px}.detail-recs .grid{grid-template-columns:repeat(2,minmax(0,1fr))}.navlinks a:nth-child(3){display:none}}
 </style>
 </head>
 <body>
-<nav class="wrap"><a class="brand" href="#" aria-label="CineMatch home"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M4 5.5h16v13H4zM8 5.5v13M16 5.5v13M4 9h4m8 0h4M4 15h4m8 0h4"/></svg></span><span>Cine<span>Match</span></span></a><div class="navlinks"><a href="#discover">Discover</a><a href="#indian">Indian cinema</a><a href="#hollywood">Hollywood</a><a href="#about">About</a></div><a class="nav-cta" href="#discover">Explore films ↗</a></nav>
+<nav class="wrap"><a class="brand" href="#" aria-label="CineMatch home"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M4 5.5h16v13H4zM8 5.5v13M16 5.5v13M4 9h4m8 0h4M4 15h4m8 0h4"/></svg></span><span>Cine<span>Match</span></span></a><div class="navlinks"><a href="#discover">Discover</a><a href="#indian">Indian cinema</a><a href="#hollywood">Hollywood</a><a href="#watchlist">Watchlist</a><a href="#about">About</a></div><a class="nav-cta" href="#discover">Explore films ↗</a></nav>
 <main class="wrap">
 <section class="hero"><div><span class="eyebrow"><span class="dot"></span> Your personal cinema guide</span><h1>Great stories.<br><em>Perfectly matched.</em></h1><p>From Bollywood blockbusters to regional gems, find films that fit your mood, explore new favourites, and build your own watchlist.</p><div class="hero-actions"><a class="primary" href="#indian">Explore Indian cinema <span aria-hidden="true">→</span></a><a class="secondary" href="#about">Meet CineMatch</a></div></div>
 <div class="hero-art" aria-label="Cinematic poster artwork"><div class="glow"></div><div class="poster-stack"><img class="poster one" src="https://image.tmdb.org/t/p/w342/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg" alt="" onerror="this.style.display='none'"><img class="poster two" src="https://image.tmdb.org/t/p/w342/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg" alt="" onerror="this.style.display='none'"><img class="poster three" src="https://image.tmdb.org/t/p/w342/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg" alt="" onerror="this.style.display='none'"><div class="float-tag tag-a">✦ Curated for <strong>your taste</strong></div><div class="float-tag tag-b">🎞️ <strong>Many languages</strong></div></div></div></section>
-<section id="discover" class="searchbox"><form id="search-form"><div class="searchrow"><input class="searchinput" id="query" placeholder="Search movies, titles, genres…" aria-label="Search movies" autocomplete="off"><button class="primary" type="submit">Search movies</button></div><div class="filters"><select id="language" aria-label="Indian cinema language"><option value="">All Indian languages</option><option value="hi">Hindi</option><option value="ta">Tamil</option><option value="te">Telugu</option><option value="ml">Malayalam</option><option value="kn">Kannada</option><option value="bn">Bengali</option><option value="mr">Marathi</option><option value="pa">Punjabi</option><option value="gu">Gujarati</option><option value="ur">Urdu</option><option value="en">English-language Indian films</option></select><select id="sort" aria-label="Sort Indian movies"><option value="popularity.desc">Popular</option><option value="vote_average.desc">Top rated</option><option value="primary_release_date.desc">Newest first</option><option value="primary_release_date.asc">Oldest first</option></select></div></form></section>
+<section id="discover" class="searchbox"><form id="search-form"><div class="searchrow"><input class="searchinput" id="query" placeholder="Search movies, titles, genres…" aria-label="Search movies" autocomplete="off"><button class="primary" type="submit">Search movies</button></div><div class="filters"><select id="search-scope" aria-label="Search scope"><option value="true">Indian cinema only</option><option value="false">All movies</option></select><select id="language" aria-label="Indian cinema language"><option value="">All Indian languages</option><option value="hi">Hindi</option><option value="ta">Tamil</option><option value="te">Telugu</option><option value="ml">Malayalam</option><option value="kn">Kannada</option><option value="bn">Bengali</option><option value="mr">Marathi</option><option value="pa">Punjabi</option><option value="gu">Gujarati</option><option value="ur">Urdu</option><option value="en">English-language Indian films</option></select><select id="sort" aria-label="Sort Indian movies"><option value="popularity.desc">Popular</option><option value="vote_average.desc">Top rated</option><option value="primary_release_date.desc">Newest first</option><option value="primary_release_date.asc">Oldest first</option></select></div></form></section>
 <div id="status" class="status" role="status" aria-live="polite"></div>
 <section id="indian" class="section"><div class="section-head"><div><span class="eyebrow">Made in India</span><h2>Indian cinema, in every language</h2><p>Hindi, Tamil, Telugu, Malayalam, Kannada, Marathi, Bengali and more.</p></div><button id="load-more" class="pill" type="button">Load more films ↓</button></div><div class="tabs"><button class="pill active" data-lang="">All India</button><button class="pill" data-lang="hi">Hindi</button><button class="pill" data-lang="ta">Tamil</button><button class="pill" data-lang="te">Telugu</button><button class="pill" data-lang="ml">Malayalam</button><button class="pill" data-lang="kn">Kannada</button><button class="pill" data-lang="mr">Marathi</button><button class="pill" data-lang="bn">Bengali</button></div><div id="movies" class="grid"><div class="loader">Loading films…</div></div><p class="tmdb-note">Movie details and posters are supplied by TMDB. The catalogue is paginated, so you can keep exploring.</p></section>
-<section id="hollywood" class="section"><div class="section-head"><div><span class="eyebrow">From the US and beyond</span><h2>Hollywood & American cinema</h2><p>Discover US-origin films with posters, ratings, release years and synopses.</p></div><button id="hollywood-more" class="pill" type="button">Load more films ↓</button></div><div id="hollywood-movies" class="grid"><div class="loader">Loading Hollywood films…</div></div><p class="tmdb-note">Powered by the same TMDB API as Indian cinema. Posters are shown when available.</p></section>
-<section id="popular" class="section"><div class="section-head"><div><h2>From your recommendation engine</h2><p>Discover titles from CineMatch’s local recommendation dataset.</p></div><button id="top-rated" class="pill" type="button">Refresh recommendations ↻</button></div><div id="local-movies" class="grid"><div class="loader">Loading recommendations…</div></div></section>
+<section id="watchlist" class="section"><div class="section-head"><div><span class="eyebrow">Saved for later</span><h2>Your watchlist</h2><p>Saved on this browser only. No account required.</p></div><button id="clear-watchlist" class="pill" type="button">Clear watchlist</button></div><div id="watchlist-movies" class="grid"><div class="empty">Your watchlist is empty. Add films using the + Watchlist button.</div></div></section>\n<section id="hollywood" class="section"><div class="section-head"><div><span class="eyebrow">From the US and beyond</span><h2>Hollywood & American cinema</h2><p>Discover US-origin films with posters, ratings, release years and synopses.</p></div><button id="hollywood-more" class="pill" type="button">Load more films ↓</button></div><div id="hollywood-movies" class="grid"><div class="loader">Loading Hollywood films…</div></div><p class="tmdb-note">Powered by the same TMDB API as Indian cinema. Posters are shown when available.</p></section>
+<section id="popular" class="section"><div class="section-head"><div><span class="eyebrow">Behind the match</span><h2>Recommendations, explained</h2><p>CineMatch combines catalogue discovery with a transparent recommendation experiment.</p></div></div><div class="about-cards"><div class="about-card"><b>Popularity baseline</b><span>Bayesian weighted ratings balance average rating with the number of votes.</span></div><div class="about-card"><b>Content similarity</b><span>TF-IDF genre features and cosine similarity find films with related themes.</span></div><div class="about-card"><b>Collaborative signal</b><span>Item-item rating similarity estimates what viewers with overlapping tastes may enjoy.</span></div><div class="about-card"><b>Honest project scope</b><span>The academic recommender uses MovieLens data; live catalogue and poster data come from TMDB. It is an experimental MVP, not a production-trained AI model.</span></div></div></section>
 <section id="about" class="about"><div><span class="eyebrow">About the project</span><h2>CineMatch.<br>Powered by data. Made for movie lovers.</h2><p>CineMatch is a Big Data Analytics project that explores how movie metadata, user ratings and genre information can make film discovery more useful. It combines a live catalogue of Indian cinema with a local recommendation engine, giving viewers one place to discover films across languages.</p><p>The project demonstrates a practical data pipeline: prepare and validate movie-rating data, analyse genre and rating patterns, calculate recommendation scores, and present results through a responsive web application. Live catalogue metadata and posters are supplied by TMDB; the recommendation experiment uses the MovieLens dataset.</p></div><div class="about-cards"><div class="about-card"><b>🇮🇳 Indian-first discovery</b><span>Explore Indian-origin films across languages, with search and filters.</span></div><div class="about-card"><b>📊 Data preparation</b><span>Clean, transform and validate movie and rating records.</span></div><div class="about-card"><b>✦ Hybrid recommendations</b><span>Popularity ranking, TF-IDF content similarity and item-item collaborative filtering.</span></div><div class="about-card"><b>🔎 Explainable results</b><span>Use ratings, genres and similarity signals to help explore new titles.</span></div></div></section>
 </main>
-<footer><div class="wrap footerrow"><span>© <span id="year"></span> CineMatch · Made for curious movie lovers.</span><span>Movie data and images: TMDB · Not affiliated with TMDB.</span></div></footer>
+<footer><div class="wrap footerrow"><span>© <span id="year"></span> CineMatch · Made for curious movie lovers.</span><span><a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">TMDB</a> data and images. This product uses the TMDB API but is not endorsed or certified by TMDB.</span></div></footer>
 <script>
 (() => {
   "use strict";
-  const $ = (s) => document.querySelector(s);
-  const $$ = (s) => Array.from(document.querySelectorAll(s));
+  const $ = (s, root=document) => root.querySelector(s);
+  const $$ = (s, root=document) => Array.from(root.querySelectorAll(s));
   const status = $("#status");
-  let indianPage = 1, selectedLanguage = "", requestNumber = 0;
+  let indianPage = 1, hollywoodPage = 1, indianQuery = "", latestSearch = 0;
+  const watchKey = "cm_watchlist_v1";
   const setStatus = (message) => { if (status) status.textContent = message || ""; };
-  const escapeText = (value) => String(value ?? "");
+  const text = (v) => String(v ?? "");
   async function api(path) {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 20000);
+    const timer = setTimeout(() => controller.abort(), 18000);
     try {
-      const response = await fetch(path, { signal: controller.signal, headers: { Accept: "application/json" } });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.detail || data.message || ("Request failed (" + response.status + ")"));
+      const res = await fetch(path, {signal:controller.signal, headers:{Accept:"application/json"}});
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.detail || data.message || ("Request failed ("+res.status+")"));
       return data;
-    } catch (error) {
-      if (error.name === "AbortError") throw new Error("The catalogue took too long to respond. Please tap Retry.");
-      if (error instanceof TypeError) throw new Error("Could not connect to CineMatch. Check your internet connection and retry.");
-      throw error;
+    } catch(e) {
+      if (e.name === "AbortError") throw new Error("The catalogue took too long to respond. Please retry.");
+      if (e instanceof TypeError) throw new Error("Could not connect to CineMatch. Check your connection and retry.");
+      throw e;
     } finally { clearTimeout(timer); }
   }
-  function node(tag, className, text) {
-    const n = document.createElement(tag);
-    if (className) n.className = className;
-    if (text !== undefined && text !== null) n.textContent = text;
+  function el(tag, cls, value) {
+    const n=document.createElement(tag);
+    if(cls) n.className=cls;
+    if(value !== undefined && value !== null) n.textContent=value;
     return n;
   }
-  function posterCard(movie) {
-    const title = escapeText(movie.title || movie.original_title || "Untitled");
-    const card = node("article", "movie");
-    const link = node("a", "poster-link");
-    link.href = movie.id ? "https://www.themoviedb.org/movie/" + encodeURIComponent(movie.id) : "#";
-    link.target = "_blank"; link.rel = "noopener noreferrer";
-    link.setAttribute("aria-label", "View " + title + " on TMDB");
-    if (movie.poster || movie.backdrop) {
-      const img = node("img", "movie-poster");
-      img.src = movie.poster || movie.backdrop; img.alt = title + " poster"; img.loading = "lazy"; img.decoding = "async";
-      img.onerror = () => { img.remove(); if (!link.querySelector(".poster-placeholder")) link.append(node("div", "poster-placeholder", "🎬  " + title)); };
-      link.append(img);
-    } else link.append(node("div", "poster-placeholder", "🎬  " + title));
-    if (Number(movie.rating) > 0) link.append(node("span", "rating", "★ " + Number(movie.rating).toFixed(1)));
-    card.append(link, node("h3", "", title), node("div", "meta", (movie.year || "—") + " · " + String(movie.language || "").toUpperCase()));
-    if (movie.overview) {
-      const overview = node("p", "meta", movie.overview);
-      overview.style.cssText = "display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin:7px 0 0";
-      card.append(overview);
+  function getWatchlist() {
+    try { const v=JSON.parse(localStorage.getItem(watchKey)||"[]"); return Array.isArray(v)?v:[]; }
+    catch(_) { return []; }
+  }
+  function saveWatchlist(items) {
+    try { localStorage.setItem(watchKey,JSON.stringify(items)); return true; }
+    catch(_) { setStatus("Your browser could not save the watchlist. Check storage settings."); return false; }
+  }
+  function watchlisted(movie) { return getWatchlist().some(x=>String(x.id)===String(movie.id)); }
+  function toggleWatchlist(movie) {
+    if(!movie.id) { setStatus("This item has no catalogue ID and cannot be saved."); return; }
+    const list=getWatchlist(), exists=list.some(x=>String(x.id)===String(movie.id));
+    const next=exists?list.filter(x=>String(x.id)!==String(movie.id)):[...list,{id:movie.id,title:movie.title||movie.original_title||"Untitled",year:movie.year||"—",poster:movie.poster||"",backdrop:movie.backdrop||"",rating:movie.rating||0,language:movie.language||"",overview:movie.overview||""}];
+    if(saveWatchlist(next)) {
+      setStatus(exists ? "Removed from your watchlist." : "Added to your watchlist.");
+      renderWatchlist();
+      $$("[data-watch-id]").forEach(b=>{if(String(b.dataset.watchId)===String(movie.id)) b.textContent=watchlisted(movie)?"✓ Saved":"＋ Watchlist";});
     }
-    const actions = node("div", "movie-actions");
-    const watch = node("button", "mini", "＋ Watchlist"); watch.type = "button";
-    watch.addEventListener("click", () => {
-      try {
-        const list = JSON.parse(localStorage.getItem("cm_watchlist") || "[]");
-        if (list.some(item => String(item.id) === String(movie.id))) { setStatus(title + " is already in your watchlist."); return; }
-        list.push({ id: movie.id, title, year: movie.year, poster: movie.poster });
-        localStorage.setItem("cm_watchlist", JSON.stringify(list));
-        setStatus(title + " added to your browser watchlist.");
-      } catch (_) { setStatus("Your browser blocked local storage; this title could not be saved."); }
-    });
-    actions.append(watch); card.append(actions);
+  }
+  function posterCard(movie, opts={}) {
+    const title=text(movie.title||movie.original_title||"Untitled"), id=movie.id;
+    const card=el("article","movie");
+    const link=el("a","poster-link");
+    link.href=id?"https://www.themoviedb.org/movie/"+encodeURIComponent(id):"#";
+    link.target="_blank";link.rel="noopener noreferrer";link.setAttribute("aria-label","Open "+title+" on TMDB");
+    const poster=movie.poster||movie.backdrop;
+    if(poster) {
+      const img=el("img","movie-poster");img.src=poster;img.alt=title+" poster";img.loading="lazy";img.decoding="async";
+      img.onerror=()=>{img.remove();if(!$(".poster-placeholder",link))link.append(el("div","poster-placeholder","🎬 "+title));};
+      link.append(img);
+    } else link.append(el("div","poster-placeholder","🎬 "+title));
+    if(Number(movie.rating)>0)link.append(el("span","rating","★ "+Number(movie.rating).toFixed(1)));
+    card.append(link,el("h3","",title),el("div","meta",(movie.year||"—")+" · "+text(movie.language).toUpperCase()));
+    if(movie.overview&&!opts.compact){const p=el("p","meta",movie.overview);p.style.cssText="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin:7px 0 0";card.append(p);}
+    const actions=el("div","movie-actions");
+    if(id) {
+      const details=el("button","mini detail-button","Details");details.type="button";details.addEventListener("click",()=>showDetails(movie));actions.append(details);
+      const saved=el("button","mini",watchlisted(movie)?"✓ Saved":"＋ Watchlist");saved.type="button";saved.dataset.watchId=id;saved.addEventListener("click",()=>toggleWatchlist(movie));actions.append(saved);
+    }
+    if(!opts.compact)card.append(actions);
     return card;
   }
-  function showRetry(root, message, retry) {
+  function drawGrid(root, items, emptyMessage, compact=false) {
     root.replaceChildren();
-    const box = node("div", "empty");
-    box.append(node("p", "", message));
-    const button = node("button", "primary", "Retry"); button.type = "button"; button.addEventListener("click", retry);
-    box.append(button); root.append(box);
+    if(!items.length){root.append(el("div","empty",emptyMessage));return;}
+    const frag=document.createDocumentFragment();items.forEach(m=>frag.append(posterCard(m,{compact})));root.append(frag);
   }
-  function renderIndian(data, title) {
-    const root = $("#movies");
-    root.replaceChildren();
-    const list = Array.isArray(data.results) ? data.results : [];
-    if (!list.length) {
-      root.append(node("div", "empty", "No films found for this filter. Choose All Indian languages or try another search."));
-      setStatus("No results returned. You can change the language or search term.");
-    } else {
-      const fragment = document.createDocumentFragment();
-      list.forEach(movie => fragment.append(posterCard(movie)));
-      root.append(fragment);
-      setStatus(title ? title + " · " + Number(data.total_results || list.length).toLocaleString() + " results." :
-        "Showing " + list.length + " Indian films · " + Number(data.total_results || 0).toLocaleString() + " titles available.");
-    }
-    $("#load-more").hidden = !list.length || indianPage >= Number(data.total_pages || 1);
+  function retryView(root,message,retry) {
+    root.replaceChildren();const box=el("div","empty");box.append(el("p","",message));
+    const b=el("button","primary","Retry");b.type="button";b.addEventListener("click",retry);box.append(b);root.append(box);
   }
-  async function loadIndian(reset = true) {
-    if (reset) indianPage = 1;
-    const call = ++requestNumber;
-    selectedLanguage = $("#language").value || "";
-    const sort = $("#sort").value || "popularity.desc";
-    const root = $("#movies");
-    root.replaceChildren(node("div", "loader", "Loading Indian cinema…"));
-    $("#load-more").hidden = true;
-    try {
-      const params = new URLSearchParams({ page: String(indianPage), sort });
-      if (selectedLanguage) params.set("language", selectedLanguage);
-      const data = await api("/api/catalog/indian?" + params.toString());
-      if (call !== requestNumber) return;
-      renderIndian(data);
-    } catch (error) {
-      if (call !== requestNumber) return;
-      showRetry(root, error.message || "The movie catalogue could not load.", () => loadIndian());
-      setStatus("Catalogue connection needs a retry.");
-    }
+  async function loadIndian(reset=true) {
+    if(reset){indianPage=1;indianQuery="";}
+    const root=$("#movies"), button=$("#load-more"), language=$("#language").value||"", sort=$("#sort").value||"popularity.desc";
+    const req=++latestSearch;root.replaceChildren(el("div","loader","Loading Indian cinema…"));button.hidden=true;
+    try{
+      const p=new URLSearchParams({page:String(indianPage),sort});
+      if(language)p.set("language",language);
+      const data=await api("/api/catalog/indian?"+p);
+      if(req!==latestSearch)return;
+      drawGrid(root,data.results||[],"No films found for this language yet. Try another language.");
+      button.hidden=!(data.results||[]).length||indianPage>=Number(data.total_pages||1);
+      setStatus("Indian cinema · "+Number(data.total_results||0).toLocaleString()+" titles in the catalogue.");
+    }catch(e){if(req!==latestSearch)return;retryView(root,e.message,()=>loadIndian());setStatus("Indian catalogue needs a retry.");}
   }
-  async function searchMovies(query) {
-    const q = query.trim();
-    if (!q) { await loadIndian(); return; }
-    const call = ++requestNumber, root = $("#movies");
-    root.replaceChildren(node("div", "loader", "Searching Indian cinema…"));
-    $("#load-more").hidden = true;
-    try {
-      const params = new URLSearchParams({ q, indian_only: "true" });
-      const data = await api("/api/catalog/search?" + params.toString());
-      if (call !== requestNumber) return;
-      renderIndian(data, "Search: " + q);
-      $("#indian").scrollIntoView({ behavior: "smooth", block: "start" });
-    } catch (error) {
-      if (call !== requestNumber) return;
-      showRetry(root, error.message || "Search failed.", () => searchMovies(q));
-      setStatus("Search failed. Please retry.");
-    }
+  async function loadHollywood(reset=true) {
+    if(reset)hollywoodPage=1;
+    const root=$("#hollywood-movies"),button=$("#hollywood-more");
+    root.replaceChildren(el("div","loader","Loading Hollywood films…"));button.hidden=true;
+    try{
+      const p=new URLSearchParams({page:String(hollywoodPage),sort:$("#sort").value||"popularity.desc"});
+      const data=await api("/api/catalog/hollywood?"+p);
+      drawGrid(root,data.results||[],"No films returned. Please retry.");
+      button.hidden=!(data.results||[]).length||hollywoodPage>=Number(data.total_pages||1);
+      setStatus("Catalogue ready · "+Number(data.total_results||0).toLocaleString()+" US-origin films available.");
+    }catch(e){retryView(root,e.message,()=>loadHollywood());}
   }
-  let hollywoodPage = 1, hollywoodRequest = 0;
-  async function loadHollywood(reset = true) {
-    if (reset) hollywoodPage = 1;
-    const call = ++hollywoodRequest, root = $("#hollywood-movies");
-    root.replaceChildren(node("div", "loader", "Loading Hollywood films…"));
-    $("#hollywood-more").hidden = true;
-    try {
-      const params = new URLSearchParams({ page: String(hollywoodPage), sort: $("#sort").value || "popularity.desc" });
-      const data = await api("/api/catalog/hollywood?" + params.toString());
-      if (call !== hollywoodRequest) return;
-      root.replaceChildren();
-      const list = Array.isArray(data.results) ? data.results : [];
-      if (!list.length) root.append(node("div", "empty", "No Hollywood titles returned. Please retry."));
-      else list.forEach(movie => root.append(posterCard(movie)));
-      $("#hollywood-more").hidden = !list.length || hollywoodPage >= Number(data.total_pages || 1);
-      setStatus("Hollywood catalogue · " + Number(data.total_results || 0).toLocaleString() + " US-origin titles available.");
-    } catch (error) {
-      if (call !== hollywoodRequest) return;
-      showRetry(root, error.message || "Hollywood catalogue could not load.", () => loadHollywood());
-    }
+  async function searchMovies() {
+    const q=$("#query").value.trim();
+    if(!q){await loadIndian();return;}
+    const indianOnly=$("#search-scope").value==="true";
+    const req=++latestSearch,root=$("#movies");
+    root.replaceChildren(el("div","loader","Searching "+(indianOnly?"Indian cinema":"the movie catalogue")+"…"));
+    $("#load-more").hidden=true;
+    try{
+      const p=new URLSearchParams({q,indian_only:String(indianOnly)});
+      const data=await api("/api/catalog/search?"+p);
+      if(req!==latestSearch)return;
+      indianQuery=q;
+      drawGrid(root,data.results||[],"No matches found. Try a shorter title or switch to All movies.");
+      setStatus("Search results for “"+q+"” · "+Number(data.total_results||0).toLocaleString()+" matches.");
+      $("#indian").scrollIntoView({behavior:"smooth",block:"start"});
+    }catch(e){if(req!==latestSearch)return;retryView(root,e.message,searchMovies);setStatus("Search could not complete.");}
   }
-  async function loadLocal() {
-    const root = $("#local-movies");
-    try {
-      const data = await api("/api/recommendations/popular?k=15");
-      const list = Array.isArray(data) ? data : (data.results || []);
-      root.replaceChildren();
-      if (!list.length) { root.append(node("div", "empty", "The recommendation dataset has no titles yet.")); return; }
-      list.forEach(movie => {
-        const card = node("article", "movie"), title = escapeText(movie.title || "Untitled");
-        const link = node("a", "poster-link");
-        if (movie.poster) {
-          const img = node("img", "movie-poster"); img.src = movie.poster; img.alt = title; img.loading = "lazy";
-          img.onerror = () => { img.remove(); link.append(node("div", "poster-placeholder", "🎬  " + title)); }; link.append(img);
-        } else link.append(node("div", "poster-placeholder", "🎬  " + title));
-        card.append(link, node("h3", "", title), node("div", "meta", (movie.year || "—") + " · " + (movie.genres || "")));
-        root.append(card);
-      });
-    } catch (error) {
-      showRetry(root, "Local recommendations are temporarily unavailable. The Indian movie catalogue above works independently.", loadLocal);
-    }
+  function renderWatchlist() {
+    const root=$("#watchlist-movies"),items=getWatchlist();
+    $("#clear-watchlist").hidden=!items.length;
+    drawGrid(root,items,"Your watchlist is empty. Add films using the + Watchlist button.");
   }
-  $("#search-form").addEventListener("submit", event => { event.preventDefault(); searchMovies($("#query").value); });
-  $("#language").addEventListener("change", () => {
-    $$("[data-lang]").forEach(button => button.classList.toggle("active", button.dataset.lang === $("#language").value));
-    $("#query").value = ""; loadIndian();
+  let dialog;
+  function ensureDialog() {
+    if(dialog)return dialog;
+    dialog=document.createElement("dialog");dialog.className="dialog";dialog.id="movie-dialog";
+    dialog.innerHTML='<div class="dialog-head"><strong>CineMatch · Movie details</strong><button class="mini" type="button" data-close>Close ✕</button></div><div class="dialog-body" id="detail-content"><div class="loader">Loading details…</div></div>';
+    document.body.append(dialog);
+    $("[data-close]",dialog).addEventListener("click",()=>dialog.close());
+    dialog.addEventListener("click",e=>{if(e.target===dialog)dialog.close();});
+    return dialog;
+  }
+  async function showDetails(movie) {
+    const d=ensureDialog(),body=$("#detail-content",d),id=movie.id;
+    body.replaceChildren(el("div","loader","Loading movie details and recommendations…"));
+    try{if(!d.open)d.showModal();}catch(_){d.setAttribute("open","");}
+    if(!id){body.replaceChildren(el("div","empty","Details are not available for this title."));return;}
+    try{
+      const [detail,recData]=await Promise.all([
+        api("/api/catalog/movie/"+encodeURIComponent(id)),
+        api("/api/catalog/recommendations/"+encodeURIComponent(id)).catch(()=>({results:[]}))
+      ]);
+      body.replaceChildren();
+      const hero=el("div","detail-hero"),img=el("img","detail-poster");img.alt=(detail.title||movie.title)+" poster";img.src=detail.poster||detail.backdrop||movie.poster||"";
+      if(!img.src)img.hidden=true;img.onerror=()=>{img.hidden=true;};
+      const copy=el("div","detail-copy");copy.append(el("span","status-chip",(detail.year||movie.year||"—")+" · "+(detail.runtime?detail.runtime+" min · ":"")+"★ "+Number(detail.rating||movie.rating||0).toFixed(1)));
+      copy.append(el("h2","",detail.title||movie.title||"Movie details"));
+      const genres=Array.isArray(detail.genres)?detail.genres.join(" · "):"";
+      if(genres)copy.append(el("div","meta",genres));
+      copy.append(el("p","",detail.overview||"No synopsis is available for this title."));
+      if(detail.production_countries&&detail.production_countries.length)copy.append(el("div","meta","Countries: "+detail.production_countries.join(", ")));
+      const actions=el("div","detail-actions"),save=el("button","primary",watchlisted(detail)?"✓ Saved to watchlist":"＋ Add to watchlist");
+      save.type="button";save.addEventListener("click",()=>{toggleWatchlist({...movie,...detail});save.textContent=watchlisted(detail)?"✓ Saved to watchlist":"＋ Add to watchlist";});
+      const open=el("a","secondary","View on TMDB ↗");open.href="https://www.themoviedb.org/movie/"+encodeURIComponent(id);open.target="_blank";open.rel="noopener noreferrer";
+      actions.append(save,open);copy.append(actions);hero.append(img,copy);body.append(hero);
+      const recs=(recData.results||[]).filter(m=>String(m.id)!==String(id)).slice(0,8);
+      const section=el("section","detail-recs");section.append(el("h3","","You might also like"));
+      if(recs.length){const grid=el("div","grid");recs.forEach(m=>grid.append(posterCard(m,{compact:true})));section.append(grid);}
+      else section.append(el("p","meta","Related titles are not available right now."));
+      body.append(section);
+    }catch(e){retryView(body,e.message,()=>showDetails(movie));}
+  }
+  $("#search-form").addEventListener("submit",e=>{e.preventDefault();searchMovies();});
+  $("#language").addEventListener("change",()=>{ $$("#language option").forEach(()=>{});$$("[data-lang]").forEach(b=>b.classList.toggle("active",b.dataset.lang===$("#language").value));$("#query").value="";loadIndian();});
+  $("#sort").addEventListener("change",()=>{loadIndian();loadHollywood();});
+  $$("#search-scope").forEach(()=>{});
+  $$("[data-lang]").forEach(b=>b.addEventListener("click",()=>{$("#language").value=b.dataset.lang;$("#query").value="";$$("[data-lang]").forEach(x=>x.classList.toggle("active",x===b));loadIndian();}));
+  $("#load-more").addEventListener("click",async()=>{
+    const b=$("#load-more"),next=indianPage+1;b.disabled=true;b.textContent="Loading…";
+    try{const p=new URLSearchParams({page:String(next),sort:$("#sort").value||"popularity.desc"});if($("#language").value)p.set("language",$("#language").value);
+      const data=await api("/api/catalog/indian?"+p);(data.results||[]).forEach(m=>$("#movies").append(posterCard(m)));indianPage=next;
+      b.hidden=!(data.results||[]).length||indianPage>=Number(data.total_pages||1);setStatus("Page "+indianPage+" of Indian cinema.");
+    }catch(e){setStatus(e.message);}finally{b.disabled=false;b.textContent="Load more films ↓";}
   });
-  $("#sort").addEventListener("change", () => loadIndian());
-  $$("[data-lang]").forEach(button => button.addEventListener("click", () => {
-    $("#language").value = button.dataset.lang; $("#query").value = "";
-    $$("[data-lang]").forEach(other => other.classList.toggle("active", other === button));
-    loadIndian();
-  }));
-  $("#load-more").addEventListener("click", async () => {
-    const button = $("#load-more"), nextPage = indianPage + 1;
-    button.disabled = true; button.textContent = "Loading…";
-    try {
-      const params = new URLSearchParams({ page: String(nextPage), sort: $("#sort").value || "popularity.desc" });
-      if ($("#language").value) params.set("language", $("#language").value);
-      const data = await api("/api/catalog/indian?" + params.toString());
-      const list = Array.isArray(data.results) ? data.results : [];
-      list.forEach(movie => $("#movies").append(posterCard(movie)));
-      indianPage = nextPage; button.hidden = !list.length || indianPage >= Number(data.total_pages || 1);
-      setStatus("Page " + indianPage + " · " + Number(data.total_results || 0).toLocaleString() + " Indian titles indexed.");
-    } catch (error) { setStatus(error.message || "Could not load more films."); }
-    finally { button.disabled = false; button.textContent = "Load more films ↓"; }
+  $("#hollywood-more").addEventListener("click",async()=>{
+    const b=$("#hollywood-more"),next=hollywoodPage+1;b.disabled=true;b.textContent="Loading…";
+    try{const p=new URLSearchParams({page:String(next),sort:$("#sort").value||"popularity.desc"});const data=await api("/api/catalog/hollywood?"+p);
+      (data.results||[]).forEach(m=>$("#hollywood-movies").append(posterCard(m)));hollywoodPage=next;
+      b.hidden=!(data.results||[]).length||hollywoodPage>=Number(data.total_pages||1);setStatus("Hollywood page "+hollywoodPage+" loaded.");
+    }catch(e){setStatus(e.message);}finally{b.disabled=false;b.textContent="Load more films ↓";}
   });
-  $("#hollywood-more").addEventListener("click", async () => {
-    const button = $("#hollywood-more"), nextPage = hollywoodPage + 1;
-    button.disabled = true; button.textContent = "Loading…";
-    try {
-      const params = new URLSearchParams({ page: String(nextPage), sort: $("#sort").value || "popularity.desc" });
-      const data = await api("/api/catalog/hollywood?" + params.toString());
-      const list = Array.isArray(data.results) ? data.results : [];
-      list.forEach(movie => $("#hollywood-movies").append(posterCard(movie)));
-      hollywoodPage = nextPage;
-      button.hidden = !list.length || hollywoodPage >= Number(data.total_pages || 1);
-      setStatus("Hollywood page " + hollywoodPage + " · " + Number(data.total_results || 0).toLocaleString() + " titles.");
-    } catch (error) { setStatus(error.message || "Could not load more Hollywood films."); }
-    finally { button.disabled = false; button.textContent = "Load more films ↓"; }
-  });
-  $("#top-rated").addEventListener("click", loadLocal);
-  $("#year").textContent = new Date().getFullYear();
+  $("#clear-watchlist").addEventListener("click",()=>{if(saveWatchlist([])){renderWatchlist();setStatus("Watchlist cleared.");}});
+  $("#year").textContent=new Date().getFullYear();
+  renderWatchlist();
   loadIndian();
   loadHollywood();
-  loadLocal();
+  api("/api/catalog/status").then(data=>{if(!data.tmdb_configured)setStatus("Movie catalogue setup is incomplete. "+(data.message||""));}).catch(()=>{});
 })();
 </script>
 </body></html>
