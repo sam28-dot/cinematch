@@ -1,6 +1,6 @@
 # CineMatch (backend + ML core)
 
-**Status:** backend API, ML recommenders, premium responsive web UI, About section, and TMDB-backed Indian cinema catalogue integration are implemented. The catalogue requires a free TMDB Read Access Token configured as `TMDB_READ_ACCESS_TOKEN` in the deployment environment.
+**Status:** MVP scope includes Indian and US-origin film catalogues, search, language/sort filters, paginated browsing, in-site movie details and TMDB-related recommendations, a browser-local watchlist, responsive layout, and a project/About section. The live catalogue requires `TMDB_READ_ACCESS_TOKEN` in the hosting environment. The watchlist is stored in the visitor's browser; there are no accounts or cross-device sync.
 
 ## Run
     pip install -r requirements.txt
@@ -16,15 +16,23 @@
 - **Collaborative:** item-item cosine kNN on the rating matrix (dense; fine for 100K, not for 1M+). A stand-in for Spark ALS, which is not implemented.
 - **Hybrid:** min-max normalised weighted sum (content .4, CF .4, popularity .2; untuned), per-genre cap for diversity, watched/disliked removed, explanation = strongest contributing component.
 
-## Indian cinema catalogue and UI
-- The premium responsive UI lives in `frontend/index.html` and includes Discover, language filters, Indian cinema, a browser-based watchlist, and an About CineMatch section.
+## Catalogue and user-facing MVP
+- The responsive UI lives in `frontend/index.html`. It includes Indian cinema, a US-origin movie catalogue, title search, language/sort filters, pagination, movie details, TMDB related-title recommendations, a browser-local watchlist, and an About section.
+- `GET /api/catalog/hollywood` returns paginated US-origin films using the same TMDB token as the Indian catalogue.
+- `GET /api/catalog/movie/{movie_id}` returns movie details; `GET /api/catalog/recommendations/{movie_id}` returns related films from TMDB.
+- Watchlist data is stored in localStorage on the current browser only. It is not an account-based or cloud-synced list.
 - `/api/catalog/indian` uses TMDB Discover with `with_origin_country=IN`; language filters include Hindi, Tamil, Telugu, Malayalam, Kannada, Bengali, Marathi, Punjabi, Gujarati, Urdu, Assamese, Odia and English-language Indian films.
-- `/api/catalog/search` searches Indian-origin films. Both endpoints use `TMDB_READ_ACCESS_TOKEN` server-side, never in browser code.
+- `/api/catalog/search` searches film titles. Indian-only mode filters to common Indian-language releases; the all-movies mode searches the broader TMDB movie catalogue. TMDB credentials stay server-side and are never sent to the browser.
 - To enable it, create a TMDB account, request a free API Read Access Token, then add `TMDB_READ_ACCESS_TOKEN` in your Render (or other host) environment variables and redeploy. Without this variable, the local recommendation engine still works but the full live catalogue is disabled.
-- TMDB data and poster images are subject to TMDB's terms and attribution requirements. This is a searchable, paginated catalogue, not a downloaded static copy of every Indian film.
+- TMDB data and poster images are subject to TMDB's terms and attribution requirements. The UI includes TMDB's official logo and the required non-endorsement notice. This is a searchable, paginated catalogue, not a downloaded static copy of every film.
 
-## Limits
-MovieLens 100K has no language, runtime, cast or tags. `/api/providers` does not claim a film is free to watch unless verified provider data is configured. Data: MovieLens (GroupLens Research). TMDB attribution is required for TMDB data/images.
+## MVP limits to know before launch
+- MovieLens 100K is a research dataset and does not include language, runtime, cast or tags. The academic recommender uses MovieLens IDs, while the live catalogue uses TMDB IDs; they are separate systems in this MVP.
+- The visible recommendation panel explains the academic ranking approach; related-film recommendations in the movie details dialog come from TMDB.
+- Watchlists are local to one browser and can be lost if that browser's site data is cleared.
+- `/api/providers` does not claim a film is free to watch unless verified provider data is configured. No unofficial streaming links are included.
+- The deployment uses a free Render plan, which may sleep or have ephemeral storage. The catalogue token must be set in Render as `TMDB_READ_ACCESS_TOKEN`.
+- Data: MovieLens (GroupLens Research). TMDB attribution is required for TMDB data/images.
 
 ## Deploy
 Single service: the API also serves a minimal UI at `/` (`frontend/index.html`, plain HTML/JS; the planned React app is not built).
